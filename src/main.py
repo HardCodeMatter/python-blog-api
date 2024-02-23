@@ -1,14 +1,16 @@
 import uvicorn
 from fastapi import FastAPI
 
-from routers.user import router
+from routers.user import router as user_router
+from routers.post import router as post_router
 
 
 app = FastAPI(
     title='BlogAPI',
 )
 
-app.include_router(router)
+app.include_router(user_router)
+app.include_router(post_router)
 
 
 if __name__ == '__main__':

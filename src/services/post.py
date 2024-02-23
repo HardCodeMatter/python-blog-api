@@ -1,21 +1,23 @@
 from fastapi import HTTPException
 from sqlalchemy import insert, select
+from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from schemas.user import UserCreateSchema
 from models.user import User
 
+from schemas.post import PostCreateSchema
+from models.post import Post
 
-class UserService:
+
+class PostService:
     @staticmethod
-    async def create_user(data: UserCreateSchema, session: AsyncSession):
+    async def create_post(data: PostCreateSchema, session: AsyncSession):
         try:
-            user = User(**data.model_dump())
-            
-            session.add(user)
+            post = Post(**data.model_dump())
+
+            session.add(post)
             await session.commit()
 
-            return user
+            return post
         except Exception as e:
             raise HTTPException(status_code=500, detail={
                 'status': 'error',
@@ -23,16 +25,20 @@ class UserService:
             })
         
     @staticmethod
-    async def get_user(id: int, session: AsyncSession):
+    async def get_post(id: int, session: AsyncSession):
         try:
-            stmt = select(User).filter(User.id==id)
+            stmt = (
+                select(Post)
+                .options(joinedload(Post.user))
+                .filter(Post.id==id)
+            )
 
             result = await session.execute(stmt)
             await session.commit()
 
-            return result.scalars().one()
+            return result.scalars().first()
         except Exception as e:
             raise HTTPException(status_code=500, detail={
                 'status': 'error',
-                'detail': e,
+                'detail': e
             })

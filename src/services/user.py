@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from sqlalchemy import insert, select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from schemas.user import UserCreateSchema
@@ -25,7 +26,11 @@ class UserService:
     @staticmethod
     async def get_user(id: int, session: AsyncSession):
         try:
-            stmt = select(User).filter(User.id==id)
+            stmt = (
+                select(User)
+                .options(selectinload(User.posts))
+                .filter(User.id==id)
+            )
 
             result = await session.execute(stmt)
             await session.commit()

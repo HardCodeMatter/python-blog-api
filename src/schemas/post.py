@@ -1,6 +1,9 @@
 from pydantic import BaseModel, ConfigDict
 
-from .user import UserSchema
+
+class UserSchema(BaseModel):
+    id: int
+    username: str
 
 
 class PostSchema(BaseModel):
@@ -8,11 +11,9 @@ class PostSchema(BaseModel):
     title: str
     content: str
 
-    user: 'UserSchema'
+    user: "UserSchema"
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
 
 
 class PostCreateSchema(BaseModel):
@@ -21,6 +22,12 @@ class PostCreateSchema(BaseModel):
 
     user_id: int
 
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    model_config = ConfigDict(from_attributes=True)
+
+
+class PostWithoutUserSchema(BaseModel):
+    id: int
+    title: str
+    content: str
+
+    model_config = ConfigDict(from_attributes=True)

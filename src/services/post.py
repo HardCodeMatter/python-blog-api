@@ -1,4 +1,4 @@
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import insert, select
 from sqlalchemy.orm import joinedload, selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -26,19 +26,13 @@ class PostService:
         
     @staticmethod
     async def get_post(id: int, session: AsyncSession):
-        try:
-            stmt = (
-                select(Post)
-                .options(joinedload(Post.user))
-                .filter(Post.id==id)
-            )
+        stmt = (
+            select(Post)
+            .options(joinedload(Post.user))
+            .filter(Post.id==id)
+        )
 
-            result = await session.execute(stmt)
-            await session.commit()
+        result = await session.execute(stmt)
+        await session.commit()
 
-            return result.scalars().first()
-        except Exception as e:
-            raise HTTPException(status_code=500, detail={
-                'status': 'error',
-                'detail': e
-            })
+        return result.scalars().first()

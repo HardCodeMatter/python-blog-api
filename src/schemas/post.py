@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
@@ -10,8 +11,10 @@ class PostSchema(BaseModel):
     id: int
     title: str
     content: str
+    created_at: datetime
+    updated_at: datetime
 
-    user: "UserSchema"
+    user: "UserSchema" = None
 
     model_config = ConfigDict(from_attributes=True)
 

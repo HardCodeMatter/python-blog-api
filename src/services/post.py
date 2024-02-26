@@ -1,11 +1,12 @@
-from fastapi import HTTPException, status
-from sqlalchemy import insert, select
-from sqlalchemy.orm import joinedload, selectinload
+from fastapi import HTTPException
+from sqlalchemy import select
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from models.user import User
 
 from schemas.post import PostCreateSchema
 from models.post import Post
+
+from utils.firestore import firestore_client
 
 
 class PostService:
@@ -33,6 +34,17 @@ class PostService:
         )
 
         result = await session.execute(stmt)
+        post = result.scalars().first()
+        
+        if post:
+            try:
+                firebase_content = await firestore_client.get_document_by_id('content', post.content)
+
+                if firebase_content:
+                    post.content = firebase_content
+            except Exception as e:
+                print(f'Error fetching content from Firestore Database: {e}')
+
         await session.commit()
 
-        return result.scalars().first()
+        return post
